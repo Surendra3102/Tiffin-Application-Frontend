@@ -3,6 +3,8 @@ import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import './Cart.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const isDevelopment = import.meta.env.MODE === 'development';
 const BASE_URL = isDevelopment ? import.meta.env.VITE_API_BASE_URL_LOCAL : import.meta.env.VITE_API_BASE_URL_DEPLOY;
@@ -16,12 +18,20 @@ const CartPage = () => {
 
   const placeOrder = async () => {
     if (!authTokens?.access) {
-      alert("You need to be logged in to place an order.");
+      toast.warn("You need to be logged in to place an order.", {
+        position: 'top-center',
+        autoClose: 3000,
+        pauseOnHover: true,
+      });
       return;
     }
 
     if (cartItems.length === 0) {
-      alert("Your cart is empty.");
+      toast.info("Your cart is empty.", {
+        position: 'top-center',
+        autoClose: 3000,
+        pauseOnHover: true,
+      });
       return;
     }
 
@@ -41,11 +51,17 @@ const CartPage = () => {
         },
       });
 
-      alert("Order placed successfully!");
+      toast.success("Order placed successfully!", {
+        position: 'top-right',
+        autoClose: 3000,
+      });
       clearCart();
     } catch (err) {
       console.error("Error placing order:", err.response?.data || err.message);
-      alert("Failed to place order.");
+      toast.error("Failed to place order. Please try again.", {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     }
   };
 
@@ -84,6 +100,9 @@ const CartPage = () => {
         </div>
         <button className="place-order-btn" onClick={placeOrder}>Place Order</button>
       </div>
+
+      {/* ✅ Toast Notifications Container */}
+      <ToastContainer />
     </div>
   );
 };

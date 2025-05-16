@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import './Menu.css'; // Make sure this file exists in the same folder
+import React, { useEffect, useState, useContext } from 'react';
+import './Menu.css';
 import { CartContext } from '../context/CartContext';
-import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const isDevelopment = import.meta.env.MODE === 'development';
-const BASE_URL = isDevelopment ? import.meta.env.VITE_API_BASE_URL_LOCAL : import.meta.env.VITE_API_BASE_URL_DEPLOY;
+const BASE_URL = isDevelopment
+  ? import.meta.env.VITE_API_BASE_URL_LOCAL
+  : import.meta.env.VITE_API_BASE_URL_DEPLOY;
 
 export default function Menu() {
   const [menuItems, setMenuItems] = useState([]);
   const { addToCart } = useContext(CartContext);
+  const { authTokens } = useContext(AuthContext);
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/menu/`)
@@ -16,6 +21,26 @@ export default function Menu() {
       .then((data) => setMenuItems(data))
       .catch((err) => console.error('Error fetching menu:', err));
   }, []);
+
+  const handleAddToCart = (item) => {
+    if (!authTokens?.access) {
+      toast.warn('Please log in to add items to your cart.', {
+        position: 'top-right',
+        autoClose: 3000,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
+
+    addToCart(item);
+    toast.success(`${item.name} added to cart!`, {
+      position: 'top-right',
+      autoClose: 2000,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
 
   return (
     <div className="menu-container">
@@ -29,12 +54,17 @@ export default function Menu() {
               <p className="menu-description">{item.description}</p>
               <div className="menu-footer">
                 <span className="menu-price">&#8377;{item.price}</span>
-                <button className="add-to-cart" onClick={() => addToCart(item)}>Add to Cart</button>
+                <button className="add-to-cart" onClick={() => handleAddToCart(item)}>
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* ✅ Toast container */}
+      <ToastContainer />
     </div>
   );
 }

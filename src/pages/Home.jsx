@@ -27,7 +27,7 @@ const Home = () => {
           <h1>Delicious Homemade Meals</h1>
           <div className="hero-buttons">
             <Link to="/menu" className="btn primary">View Menu</Link>
-            <Link to="/order" className="btn outline">Place Order</Link>
+            <Link to="/cart" className="btn outline">Place Order</Link>
           </div>
         </div>
         <div className="hero-image">
